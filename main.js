@@ -12,4 +12,6 @@ function draw() {
   background('black');
   stars.draw();
   drawSprites();
+
+  player.processInput();
 }
