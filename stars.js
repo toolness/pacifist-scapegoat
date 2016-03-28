@@ -10,6 +10,8 @@ Stars.prototype = {
   MAX_INTENSITY: 200,
   MIN_VELOCITY: 0.1,
   MAX_VELOCITY: 2.0,
+  MIN_SIZE: 1,
+  MAX_SIZE: 3,
   refill: function(putNewStarsAtTop) {
     var pInst = this.pInst;
 
@@ -18,6 +20,7 @@ Stars.prototype = {
         x: pInst.random(0, pInst.width),
         y: putNewStarsAtTop ? 0 : pInst.random(0, pInst.height),
         color: pInst.random(this.MIN_INTENSITY, this.MAX_INTENSITY),
+        size: pInst.random(this.MIN_SIZE, this.MAX_SIZE),
         velocity: pInst.random(this.MIN_VELOCITY, this.MAX_VELOCITY)
       });
     }
@@ -25,15 +28,18 @@ Stars.prototype = {
   draw: function() {
     var pInst = this.pInst;
 
-    pInst.loadPixels();
+    pInst.push();
+    pInst.noStroke();
     this.stars.forEach(function(star) {
-      set(star.x, star.y, color(star.color));
+      pInst.fill(star.color);
+      pInst.rect(star.x, star.y, star.size, star.size);
       star.y += star.velocity;
     });
+    pInst.pop();
+
     this.stars = this.stars.filter(function(star) {
       return star.y < pInst.height;
     });
     this.refill(true);
-    pInst.updatePixels();
   }
 };
