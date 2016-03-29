@@ -19,6 +19,24 @@ function sprayBulletsFromTop(count) {
   return promise;
 }
 
+function sprayBulletsFromCenter(count) {
+  var promise = Promise.resolve();
+  var angleIncrement = 360 / count;
+  var sprayBullet = function(i) {
+    return function() {
+      makeBullet(width / 2, height / 2).setSpeed(8, i * angleIncrement);
+    };
+  };
+
+  for (var i = 0; i < count; i++) {
+    promise = promise.then(sprayBullet(i)).then(function() {
+      return timer.wait(5);
+    });
+  }
+
+  return promise;
+}
+
 function makeBullet(x, y) {
   var bullet = createSprite(x, y, 10, 10);
 
@@ -28,11 +46,17 @@ function makeBullet(x, y) {
   return bullet;
 }
 
-function keepMakingBullets(msInterval) {
-  return sprayBulletsFromTop(10).then(function() {
+function keepSprayingBullets(msInterval) {
+  var sprayers = [
+    sprayBulletsFromTop.bind(null, 10),
+    sprayBulletsFromCenter.bind(null, 10)
+  ];
+  var sprayer = sprayers[floor(random(sprayers.length))];
+
+  return sprayer().then(function() {
     return timer.wait(msInterval);
   }).then(function() {
-    return keepMakingBullets(msInterval);
+    return keepSprayingBullets(msInterval);
   });
 }
 
@@ -45,7 +69,7 @@ function setup() {
   projectiles = new Group();
   //player.sprite.debug = true;
 
-  keepMakingBullets(120);
+  keepSprayingBullets(120);
 }
 
 function draw() {
