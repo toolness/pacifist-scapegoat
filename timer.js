@@ -33,6 +33,16 @@ function Timer(pInst) {
     });
   };
 
+  self.interval = function(frames, cb) {
+    return new Promise(function(resolve, reject) {
+      function waitAndCall() {
+        return self.wait(frames).then(cb).then(waitAndCall);
+      }
+
+      return waitAndCall().catch(reject);
+    });
+  };
+
   self.finiteInterval = function(frames, count, cb) {
     var promise = Promise.resolve();
 

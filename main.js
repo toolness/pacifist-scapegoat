@@ -28,18 +28,14 @@ function makeBullet(x, y) {
   return bullet;
 }
 
-function keepSprayingBullets(msInterval) {
+function sprayBulletsRandomly() {
   var sprayers = [
     sprayBulletsFromTop.bind(null, 10),
     sprayBulletsFromCenter.bind(null, 10)
   ];
   var sprayer = sprayers[floor(random(sprayers.length))];
 
-  return sprayer().then(function() {
-    return timer.wait(msInterval);
-  }).then(function() {
-    return keepSprayingBullets(msInterval);
-  });
+  return sprayer();
 }
 
 function setup() {
@@ -51,7 +47,7 @@ function setup() {
   projectiles = new Group();
   //player.sprite.debug = true;
 
-  keepSprayingBullets(120);
+  timer.interval(120, sprayBulletsRandomly);
 }
 
 function draw() {
