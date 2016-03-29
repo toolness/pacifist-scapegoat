@@ -3,6 +3,15 @@ function Timer(pInst) {
 
   var self = this;
   var timers = [];
+  var range = function(count) {
+    var array = [];
+
+    for (var i = 0; i < count; i++) {
+      array.push(i);
+    }
+
+    return array;
+  };
 
   self.update = function() {
     var oldTimers = timers;
@@ -22,5 +31,19 @@ function Timer(pInst) {
     return new Promise(function(resolve) {
       timers.push({endFrame: pInst.frameCount + frames, resolve: resolve});
     });
+  };
+
+  self.finiteInterval = function(frames, count, cb) {
+    var promise = Promise.resolve();
+
+    range(count).forEach(function(i) {
+      promise = promise.then(function() {
+        return cb(i);
+      }).then(function() {
+        return self.wait(frames);
+      });
+    });
+
+    return promise;
   };
 }

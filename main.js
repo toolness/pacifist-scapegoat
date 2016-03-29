@@ -6,35 +6,17 @@ var timer;
 var score = 0;
 
 function sprayBulletsFromTop(count) {
-  var promise = Promise.resolve();
-
-  for (var i = 0; i < count; i++) {
-    promise = promise.then(function() {
-      makeBullet(random(width), 20).setSpeed(8, random(10, 170));
-    }).then(function() {
-      return timer.wait(5);
-    });
-  }
-
-  return promise;
+  return timer.finiteInterval(5, count, function() {
+    makeBullet(random(width), 20).setSpeed(8, random(10, 170));
+  });
 }
 
 function sprayBulletsFromCenter(count) {
-  var promise = Promise.resolve();
   var angleIncrement = 360 / count;
-  var sprayBullet = function(i) {
-    return function() {
-      makeBullet(width / 2, height / 2).setSpeed(8, i * angleIncrement);
-    };
-  };
 
-  for (var i = 0; i < count; i++) {
-    promise = promise.then(sprayBullet(i)).then(function() {
-      return timer.wait(5);
-    });
-  }
-
-  return promise;
+  return timer.finiteInterval(5, count, function(i) {
+    makeBullet(width / 2, height / 2).setSpeed(8, i * angleIncrement);
+  });
 }
 
 function makeBullet(x, y) {
