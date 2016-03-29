@@ -14,6 +14,17 @@ function makeBullets() {
   }
 }
 
+function wait(ms) {
+  return new Promise(function(resolve) {
+    setTimeout(resolve, ms);
+  });
+}
+
+function keepMakingBullets(msInterval) {
+  makeBullets();
+  return wait(msInterval).then(keepMakingBullets.bind(null, msInterval));
+}
+
 function setup() {
   createCanvas(600, 800);
   stars = new Stars(200);
@@ -22,8 +33,7 @@ function setup() {
   projectiles = new Group();
   //player.sprite.debug = true;
 
-  makeBullets();
-  setInterval(makeBullets, 1000);
+  keepMakingBullets(1000);
 }
 
 function draw() {
