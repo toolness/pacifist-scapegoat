@@ -5,16 +5,16 @@ var projectiles;
 var timer;
 var score = 0;
 
-function sprayBulletsFromTop(count) {
-  return timer.finiteInterval(5, count, function() {
+function sprayBulletsFromTop(frames, count) {
+  return timer.finiteInterval(frames, count, function() {
     makeBullet(random(width), 20).setSpeed(8, random(10, 170));
   });
 }
 
-function sprayBulletsFromCenter(count) {
+function sprayBulletsFromCenter(frames, count) {
   var angleIncrement = 360 / count;
 
-  return timer.finiteInterval(5, count, function(i) {
+  return timer.finiteInterval(frames, count, function(i) {
     makeBullet(width / 2, height / 2).setSpeed(8, i * angleIncrement);
   });
 }
@@ -29,11 +29,18 @@ function makeBullet(x, y) {
 }
 
 function sprayBulletsRandomly() {
+  var randInt = function(min, max) {
+    return floor(random(min, max));
+  };
   var sprayers = [
-    sprayBulletsFromTop.bind(null, 10),
-    sprayBulletsFromCenter.bind(null, 10)
+    function() {
+      return sprayBulletsFromTop(randInt(3, 8), randInt(5, 15));
+    },
+    function() {
+      return sprayBulletsFromCenter(randInt(3, 8), randInt(5, 15));
+    }
   ];
-  var sprayer = sprayers[floor(random(sprayers.length))];
+  var sprayer = sprayers[randInt(0, sprayers.length)];
 
   return sprayer();
 }
