@@ -2,6 +2,7 @@ var stars;
 var player;
 var walls;
 var projectiles;
+var timer;
 var score = 0;
 
 function makeBullets() {
@@ -14,29 +15,26 @@ function makeBullets() {
   }
 }
 
-function wait(ms) {
-  return new Promise(function(resolve) {
-    setTimeout(resolve, ms);
-  });
-}
-
 function keepMakingBullets(msInterval) {
   makeBullets();
-  return wait(msInterval).then(keepMakingBullets.bind(null, msInterval));
+  return timer.wait(msInterval).then(keepMakingBullets.bind(null, msInterval));
 }
 
 function setup() {
   createCanvas(600, 800);
+  timer = new Timer();
   stars = new Stars(200);
   player = new Player();
   walls = Walls.create();
   projectiles = new Group();
   //player.sprite.debug = true;
 
-  keepMakingBullets(1000);
+  keepMakingBullets(120);
 }
 
 function draw() {
+  timer.update();
+
   background('black');
   stars.draw();
   drawSprites();
