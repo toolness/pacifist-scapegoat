@@ -7,12 +7,17 @@ var score = 0;
 
 function makeBullets() {
   for (var i = 0; i < 10; i++) {
-    var bullet = createSprite(random(width), 20, 10, 10);
-
-    bullet.shapeColor = color(255, 0, 150);
-    bullet.setSpeed(8, random(10, 170));
-    projectiles.add(bullet);
+    makeBullet(random(width), 20).setSpeed(8, random(10, 170));
   }
+}
+
+function makeBullet(x, y) {
+  var bullet = createSprite(x, y, 10, 10);
+
+  bullet.shapeColor = color(255, 0, 150);
+  projectiles.add(bullet);
+
+  return bullet;
 }
 
 function keepMakingBullets(msInterval) {
