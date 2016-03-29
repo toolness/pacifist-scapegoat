@@ -5,10 +5,18 @@ var projectiles;
 var timer;
 var score = 0;
 
-function makeBullets() {
-  for (var i = 0; i < 10; i++) {
-    makeBullet(random(width), 20).setSpeed(8, random(10, 170));
+function sprayBulletsFromTop(count) {
+  var promise = Promise.resolve();
+
+  for (var i = 0; i < count; i++) {
+    promise = promise.then(function() {
+      makeBullet(random(width), 20).setSpeed(8, random(10, 170));
+    }).then(function() {
+      return timer.wait(5);
+    });
   }
+
+  return promise;
 }
 
 function makeBullet(x, y) {
@@ -21,8 +29,11 @@ function makeBullet(x, y) {
 }
 
 function keepMakingBullets(msInterval) {
-  makeBullets();
-  return timer.wait(msInterval).then(keepMakingBullets.bind(null, msInterval));
+  return sprayBulletsFromTop(10).then(function() {
+    return timer.wait(msInterval);
+  }).then(function() {
+    return keepMakingBullets(msInterval);
+  });
 }
 
 function setup() {
