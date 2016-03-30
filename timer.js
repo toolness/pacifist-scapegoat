@@ -27,9 +27,23 @@ function Timer(pInst) {
     });
   };
 
+  self.destroy = function() {
+    var oldTimers = timers;
+
+    timers = [];
+
+    oldTimers.forEach(function(timer) {
+      timer.reject(new TimerDestroyedError());
+    });
+  };
+
   self.wait = function(frames) {
-    return new Promise(function(resolve) {
-      timers.push({endFrame: pInst.frameCount + frames, resolve: resolve});
+    return new Promise(function(resolve, reject) {
+      timers.push({
+        endFrame: pInst.frameCount + frames,
+        resolve: resolve,
+        reject: reject
+      });
     });
   };
 
@@ -57,3 +71,9 @@ function Timer(pInst) {
     return promise;
   };
 }
+
+function TimerDestroyedError() {
+  Error.apply(this, arguments);
+}
+
+TimerDestroyedError.prototype = Object.create(Error.prototype);
