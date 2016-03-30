@@ -14,6 +14,8 @@ TitleText.prototype = {
   reset: function() {
     this.finalText = '';
     this.currentLines = [''];
+
+    return this;
   },
   write: function(text) {
     this.finalText = text;

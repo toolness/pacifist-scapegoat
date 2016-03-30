@@ -1,3 +1,7 @@
+var GAME_STATE_INTRO = 1;
+var GAME_STATE_PLAYING = 2;
+var GAME_STATE_OVER = 3;
+
 var stars;
 var player;
 var walls;
@@ -6,7 +10,7 @@ var timer;
 var enemies;
 var font;
 var titleText;
-var playStarted = false;
+var gameState = GAME_STATE_INTRO;
 var score = 0;
 
 function makeBullet(x, y) {
@@ -62,14 +66,26 @@ function createSpurtyEnemy() {
 }
 
 function spawnRandomEnemy() {
+  if (gameState === GAME_STATE_OVER) return;
+
   var enemy = randChoice([
     createSpinnyEnemy,
     createSpurtyEnemy
   ])();
 
   enemies.add(enemy.sprite);
+}
 
-  return enemy;
+function gameOver() {
+  if (gameState === GAME_STATE_OVER) return;
+
+  player.sprite.remove();
+  gameState = GAME_STATE_OVER;
+  titleText.reset().write(
+    "Human.\n\n" +
+    "You have failed utterly.\n\n" +
+    "Your final score is " + score + "."
+  );
 }
 
 function preload() {
@@ -96,29 +112,28 @@ function setup() {
   ).then(function() {
     return timer.wait(160);
   }).then(function() {
-    playStarted = true;
+    gameState = GAME_STATE_PLAYING;
     return timer.interval(120, spawnRandomEnemy);
   });
 }
 
 function draw() {
-  var destroyPlayer = player.sprite.remove.bind(player.sprite);
-
   timer.update();
 
   background('black');
   stars.draw();
   drawSprites();
 
-  if (playStarted) {
-    textSize(14);
-    text("score: " + score, 10, 20);
+  switch (gameState) {
+    case GAME_STATE_INTRO:
+    case GAME_STATE_OVER:
+      titleText.draw();
+      break;
 
-    if (!player.sprite.removed) {
+    case GAME_STATE_PLAYING:
+      textSize(14);
+      text("score: " + score, 10, 20);
       score++;
-    }
-  } else {
-    titleText.draw();
   }
 
   if (!player.sprite.removed) {
@@ -127,8 +142,8 @@ function draw() {
 
   walls.displace(player.sprite);
 
-  projectiles.overlap(player.sprite, destroyPlayer);
-  enemies.overlap(player.sprite, destroyPlayer);
+  projectiles.overlap(player.sprite, gameOver);
+  enemies.overlap(player.sprite, gameOver);
 
   projectiles.forEach(function(projectile) {
     if (Util.isSpriteOffscreen(projectile)) {
