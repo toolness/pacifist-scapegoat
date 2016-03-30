@@ -5,6 +5,7 @@ function Enemy(x, y, radius, color, timer, pInst) {
   this.radius = radius;
   this.sprite = pInst.createSprite(x, y);
   this.sprite.shapeColor = pInst.color(color);
+  this.sprite.depth = 0;
   this.sprite.draw = this.draw.bind(this);
   this.sprite.setCollider('circle', 0, 0, radius);
   this.timer = timer.createChild();
