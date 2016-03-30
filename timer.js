@@ -13,18 +13,33 @@ function Timer(pInst) {
     return array;
   };
 
+  self.destroyed = false;
+
   self.update = function() {
     var oldTimers = timers;
 
     timers = [];
 
     oldTimers.forEach(function(timer) {
-      if (pInst.frameCount >= timer.endFrame) {
+      if (timer instanceof Timer) {
+        if (!timer.destroyed) {
+          timer.update();
+          timers.push(timer);
+        }
+      } else if (pInst.frameCount >= timer.endFrame) {
         timer.resolve();
       } else {
         timers.push(timer);
       }
     });
+  };
+
+  self.createChild = function() {
+    var child = new Timer(pInst);
+
+    timers.push(child);
+
+    return child;
   };
 
   self.destroy = function() {
@@ -35,6 +50,8 @@ function Timer(pInst) {
     oldTimers.forEach(function(timer) {
       timer.reject(new TimerDestroyedError());
     });
+
+    self.destroyed = true;
   };
 
   self.wait = function(frames) {
