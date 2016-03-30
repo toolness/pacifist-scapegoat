@@ -5,6 +5,8 @@ var projectiles;
 var timer;
 var enemies;
 var font;
+var titleText;
+var playStarted = false;
 var score = 0;
 
 function makeBullet(x, y) {
@@ -86,7 +88,17 @@ function setup() {
 
   textFont(font);
 
-  timer.interval(120, spawnRandomEnemy);
+  titleText = new TitleText(timer);
+
+  titleText.write(
+    "Get ready, Human.\n\n" +
+    "Use the arrow or WASD keys\nto move."
+  ).then(function() {
+    return timer.wait(160);
+  }).then(function() {
+    playStarted = true;
+    return timer.interval(120, spawnRandomEnemy);
+  });
 }
 
 function draw() {
@@ -98,12 +110,19 @@ function draw() {
   stars.draw();
   drawSprites();
 
-  textSize(14);
-  text("score: " + score, 10, 20);
+  if (playStarted) {
+    textSize(14);
+    text("score: " + score, 10, 20);
+
+    if (!player.sprite.removed) {
+      score++;
+    }
+  } else {
+    titleText.draw();
+  }
 
   if (!player.sprite.removed) {
     player.processInput();
-    score++;
   }
 
   walls.displace(player.sprite);
