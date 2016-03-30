@@ -18,10 +18,10 @@ Player.prototype = {
     var pInst = this.pInst;
     var speed = this.SPEED;
     var angle = 0;
-    var left = pInst.keyIsDown(pInst.LEFT_ARROW);
-    var right = pInst.keyIsDown(pInst.RIGHT_ARROW);
-    var up = pInst.keyIsDown(pInst.UP_ARROW);
-    var down = pInst.keyIsDown(pInst.DOWN_ARROW);
+    var left = pInst.keyDown(pInst.LEFT_ARROW) || pInst.keyDown('a');
+    var right = pInst.keyDown(pInst.RIGHT_ARROW) || pInst.keyDown('d');
+    var up = pInst.keyDown(pInst.UP_ARROW) || pInst.keyDown('w');
+    var down = pInst.keyDown(pInst.DOWN_ARROW) || pInst.keyDown('s');
 
     if (left && up) {
       angle = -135;
