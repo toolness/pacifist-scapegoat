@@ -62,11 +62,6 @@ function spawnRandomEnemy() {
   return enemy;
 }
 
-function destroyPlayer() {
-  player.sprite.remove();
-  player.dead = true;
-}
-
 function setup() {
   createCanvas(600, 800);
   timer = new Timer();
@@ -81,6 +76,8 @@ function setup() {
 }
 
 function draw() {
+  var destroyPlayer = player.sprite.remove.bind(player.sprite);
+
   timer.update();
 
   background('black');
@@ -88,7 +85,7 @@ function draw() {
   drawSprites();
   text("score: " + score, 10, 20);
 
-  if (!player.dead) {
+  if (!player.sprite.removed) {
     player.processInput();
     score++;
   }
