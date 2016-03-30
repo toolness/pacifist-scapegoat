@@ -16,46 +16,53 @@ function makeBullet(x, y) {
   return bullet;
 }
 
+function randInt(min, max) {
+  return floor(random(min, max));
+}
+
+function randChoice(array) {
+  return array[randInt(0, array.length)];
+}
+
+function createSpinnyEnemy() {
+  var enemy = new Enemy(randInt(50, width - 50), -50, 15,
+                        'yellow', timer);
+  var count = 20;
+  var angleIncrement = 360 / count;
+
+  enemy.sprite.setSpeed(2, 90);
+
+  enemy.add(enemy.timer.finiteInterval(15, count, function(i) {
+    var b = makeBullet(enemy.sprite.position.x,
+                       enemy.sprite.position.y);
+
+    b.setSpeed(8, i * angleIncrement);
+  }));
+
+  return enemy;
+}
+
+function createSpurtyEnemy() {
+  var enemy = new Enemy(-randInt(0, 200), -50, 15, 'pink', timer);
+
+  enemy.sprite.setSpeed(3, randInt(30, 60));
+
+  enemy.add(enemy.timer.interval(60, function() {
+    return enemy.timer.finiteInterval(5, 5, function() {
+      var b = makeBullet(enemy.sprite.position.x,
+                         enemy.sprite.position.y);
+      b.setSpeed(8, 90);
+    });
+  }));
+
+  return enemy;
+}
+
 function spawnRandomEnemy() {
-  var randInt = function(min, max) {
-    return floor(random(min, max));
-  };
-  var enemyFactories = [
-    function() {
-      var enemy = new Enemy(randInt(50, width - 50), -50, 15,
-                            'yellow', timer);
-      var count = 20;
-      var angleIncrement = 360 / count;
-
-      enemy.sprite.setSpeed(2, 90);
-
-      enemy.add(enemy.timer.finiteInterval(15, count, function(i) {
-        var b = makeBullet(enemy.sprite.position.x,
-                           enemy.sprite.position.y);
-
-        b.setSpeed(8, i * angleIncrement);
-      }));
-
-      return enemy;
-    },
-    function() {
-      var enemy = new Enemy(-randInt(0, 200), -50, 15, 'pink', timer);
-
-      enemy.sprite.setSpeed(3, randInt(30, 60));
-
-      enemy.add(enemy.timer.interval(60, function() {
-        return enemy.timer.finiteInterval(5, 5, function() {
-          var b = makeBullet(enemy.sprite.position.x,
-                             enemy.sprite.position.y);
-          b.setSpeed(8, 90);
-        });
-      }));
-
-      return enemy;
-    }
-  ];
-  var enemyFactory = enemyFactories[randInt(0, enemyFactories.length)];
-  var enemy = enemyFactory();
+  var enemy = randChoice([
+    createSpinnyEnemy,
+    createSpurtyEnemy
+  ])();
 
   enemies.add(enemy.sprite);
 
