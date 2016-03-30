@@ -10,6 +10,8 @@ var timer;
 var enemies;
 var font;
 var titleText;
+var fadeToWhite = 0;
+var explosionRadius = 0;
 var gameState = GAME_STATE_INTRO;
 var score = 0;
 
@@ -79,13 +81,32 @@ function spawnRandomEnemy() {
 function gameOver() {
   if (gameState === GAME_STATE_OVER) return;
 
-  player.sprite.remove();
+  var FADE_FRAMES = 15;
+  var EXPLODE_FRAMES = 30;
+  var EXPLODE_MAX_RADIUS = max(width, height) * 2;
+  var EXPLODE_INCREMENT = EXPLODE_MAX_RADIUS / EXPLODE_FRAMES;
+  var FADE_INCREMENT = 255 / FADE_FRAMES;
+
   gameState = GAME_STATE_OVER;
-  titleText.reset().write(
-    "Human.\n\n" +
-    "You have failed utterly.\n\n" +
-    "Your final score is " + score + "."
-  );
+  titleText.reset();
+  player.sprite.setSpeed(0, 0);
+
+  timer.finiteInterval(1, EXPLODE_FRAMES, function() {
+    explosionRadius += EXPLODE_INCREMENT;
+  }).then(function() {
+    explosionRadius = 0;
+    player.sprite.remove();
+    fadeToWhite = 255;
+    return timer.finiteInterval(1, FADE_FRAMES, function() {
+      fadeToWhite -= FADE_INCREMENT;
+    });
+  }).then(function() {
+    titleText.write(
+      "Human.\n\n" +
+      "You have failed utterly.\n\n" +
+      "Your final score is " + score + "."
+    );
+  });
 }
 
 function preload() {
@@ -136,7 +157,12 @@ function draw() {
       score++;
   }
 
-  if (!player.sprite.removed) {
+  if (gameState === GAME_STATE_OVER) {
+    if (explosionRadius) {
+      ellipse(player.sprite.position.x, player.sprite.position.y,
+              explosionRadius, explosionRadius);
+    }
+  } else {
     player.processInput();
   }
 
@@ -150,4 +176,8 @@ function draw() {
       projectile.remove();
     }
   });
+
+  if (fadeToWhite) {
+    background(color(255, 255, 255, fadeToWhite));
+  }
 }
