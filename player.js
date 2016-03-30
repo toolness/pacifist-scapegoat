@@ -81,15 +81,17 @@ Player.prototype = {
     pInst.fill(pInst.color(255, 255, 255, this.explosionOpacity));
 
     if (this.explosionOpacity === 255) {
+      // Have the triangles overlap a bit along the y-axis to ensure that
+      // they don't appear to be separated at all.
       pInst.triangle(
         -halfSize, halfSize,
-        0, halfSize * this.DIVOT_SIZE_COEFF,
-        0, -halfSize
+        0.5, halfSize * this.DIVOT_SIZE_COEFF,
+        0.5, -halfSize
       );
       pInst.triangle(
         halfSize, halfSize,
-        0, halfSize * this.DIVOT_SIZE_COEFF,
-        0, -halfSize
+        -0.5, halfSize * this.DIVOT_SIZE_COEFF,
+        -0.5, -halfSize
       );
     }
 
