@@ -4,6 +4,7 @@ var walls;
 var projectiles;
 var timer;
 var enemies;
+var font;
 var score = 0;
 
 function makeBullet(x, y) {
@@ -69,6 +70,10 @@ function spawnRandomEnemy() {
   return enemy;
 }
 
+function preload() {
+  font = loadFont('vendor/OrbitronBold.otf');
+}
+
 function setup() {
   createCanvas(600, 800);
   timer = new Timer();
@@ -78,6 +83,8 @@ function setup() {
   projectiles = new Group();
   enemies = new Group();
   //player.sprite.debug = true;
+
+  textFont(font);
 
   timer.interval(120, spawnRandomEnemy);
 }
@@ -90,6 +97,8 @@ function draw() {
   background('black');
   stars.draw();
   drawSprites();
+
+  textSize(14);
   text("score: " + score, 10, 20);
 
   if (!player.sprite.removed) {
