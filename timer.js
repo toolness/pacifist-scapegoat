@@ -45,10 +45,15 @@ function Timer(pInst) {
   self.destroy = function() {
     var oldTimers = timers;
 
+    if (self.destroyed) return;
     timers = [];
 
     oldTimers.forEach(function(timer) {
-      timer.reject(new TimerDestroyedError());
+      if (timer instanceof Timer) {
+        timer.destroy();
+      } else {
+        timer.reject(new TimerDestroyedError());
+      }
     });
 
     self.destroyed = true;
