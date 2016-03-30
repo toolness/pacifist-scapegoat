@@ -3,46 +3,68 @@ var player;
 var walls;
 var projectiles;
 var timer;
+var enemies;
 var score = 0;
-
-function sprayBulletsFromTop(frames, count) {
-  return timer.finiteInterval(frames, count, function() {
-    makeBullet(random(width), 20).setSpeed(8, random(10, 170));
-  });
-}
-
-function sprayBulletsFromCenter(frames, count) {
-  var angleIncrement = 360 / count;
-
-  return timer.finiteInterval(frames, count, function(i) {
-    makeBullet(width / 2, height / 2).setSpeed(8, i * angleIncrement);
-  });
-}
 
 function makeBullet(x, y) {
   var bullet = createSprite(x, y, 10, 10);
 
   bullet.shapeColor = color(255, 0, 150);
+  bullet.depth = -10;
   projectiles.add(bullet);
 
   return bullet;
 }
 
-function sprayBulletsRandomly() {
+function spawnRandomEnemy() {
   var randInt = function(min, max) {
     return floor(random(min, max));
   };
-  var sprayers = [
+  var enemyFactories = [
     function() {
-      return sprayBulletsFromTop(randInt(3, 8), randInt(5, 15));
+      var enemy = new Enemy(randInt(50, width - 50), -50, 15,
+                            'yellow', timer);
+      var count = 20;
+      var angleIncrement = 360 / count;
+
+      enemy.sprite.setSpeed(2, 90);
+
+      enemy.add(enemy.timer.finiteInterval(15, count, function(i) {
+        var b = makeBullet(enemy.sprite.position.x,
+                           enemy.sprite.position.y);
+
+        b.setSpeed(8, i * angleIncrement);
+      }));
+
+      return enemy;
     },
     function() {
-      return sprayBulletsFromCenter(randInt(3, 8), randInt(5, 15));
+      var enemy = new Enemy(-randInt(0, 200), -50, 15, 'pink', timer);
+
+      enemy.sprite.setSpeed(3, randInt(30, 60));
+
+      enemy.add(enemy.timer.interval(60, function() {
+        return enemy.timer.finiteInterval(5, 5, function() {
+          var b = makeBullet(enemy.sprite.position.x,
+                             enemy.sprite.position.y);
+          b.setSpeed(8, 90);
+        });
+      }));
+
+      return enemy;
     }
   ];
-  var sprayer = sprayers[randInt(0, sprayers.length)];
+  var enemyFactory = enemyFactories[randInt(0, enemyFactories.length)];
+  var enemy = enemyFactory();
 
-  return sprayer();
+  enemies.add(enemy.sprite);
+
+  return enemy;
+}
+
+function destroyPlayer() {
+  player.sprite.remove();
+  player.dead = true;
 }
 
 function setup() {
@@ -52,9 +74,10 @@ function setup() {
   player = new Player();
   walls = Walls.create();
   projectiles = new Group();
+  enemies = new Group();
   //player.sprite.debug = true;
 
-  timer.interval(120, sprayBulletsRandomly);
+  timer.interval(120, spawnRandomEnemy);
 }
 
 function draw() {
@@ -71,9 +94,7 @@ function draw() {
   }
 
   walls.displace(player.sprite);
-  projectiles.overlap(player.sprite, function() {
-    player.sprite.remove();
-    player.dead = true;
 
-  });
+  projectiles.overlap(player.sprite, destroyPlayer);
+  enemies.overlap(player.sprite, destroyPlayer);
 }
