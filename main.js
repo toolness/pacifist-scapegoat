@@ -66,8 +66,6 @@ function createSpurtyEnemy() {
 }
 
 function spawnRandomEnemy() {
-  if (gameState === GAME_STATE_OVER) return;
-
   var enemy = randChoice([
     createSpinnyEnemy,
     createSpurtyEnemy
@@ -115,7 +113,10 @@ function setup() {
     return timer.wait(160);
   }).then(function() {
     gameState = GAME_STATE_PLAYING;
-    return timer.interval(120, spawnRandomEnemy);
+    return timer.interval(120, function() {
+      if (gameState === GAME_STATE_OVER) return Timer.STOP_INTERVAL;
+      spawnRandomEnemy();
+    });
   });
 }
 

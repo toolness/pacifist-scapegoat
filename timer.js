@@ -72,7 +72,10 @@ function Timer(pInst) {
   self.interval = function(frames, cb) {
     return new Promise(function(resolve, reject) {
       function waitAndCall() {
-        return self.wait(frames).then(cb).then(waitAndCall);
+        return self.wait(frames).then(cb).then(function(cbResult) {
+          if (cbResult === Timer.STOP_INTERVAL) return resolve();
+          return waitAndCall();
+        });
       }
 
       return waitAndCall().catch(reject);
@@ -99,3 +102,6 @@ function TimerDestroyedError() {
 }
 
 TimerDestroyedError.prototype = Object.create(Error.prototype);
+
+Timer.STOP_INTERVAL = typeof(Symbol) === 'function' ? Symbol()
+                                                    : new Object();
