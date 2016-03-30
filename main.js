@@ -97,4 +97,10 @@ function draw() {
 
   projectiles.overlap(player.sprite, destroyPlayer);
   enemies.overlap(player.sprite, destroyPlayer);
+
+  projectiles.forEach(function(projectile) {
+    if (Util.isSpriteOffscreen(projectile)) {
+      projectile.remove();
+    }
+  });
 }
