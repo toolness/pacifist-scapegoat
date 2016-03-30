@@ -8,9 +8,11 @@ function Enemy(x, y, radius, color, timer, pInst) {
   this.sprite.draw = this.draw.bind(this);
   this.sprite.setCollider('circle', 0, 0, radius);
   this.timer = timer.createChild();
+  this.timer.wait(this.MAX_LIFETIME).then(this.destroy.bind(this));
 }
 
 Enemy.prototype = {
+  MAX_LIFETIME: 60 * 30,
   draw: function() {
     var pInst = this.pInst;
 
@@ -29,7 +31,7 @@ Enemy.prototype = {
     });
   },
   destroy: function() {
-    this.sprite.remove();
+    if (!this.sprite.removed) this.sprite.remove();
     this.timer.destroy();
   }
 };
