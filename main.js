@@ -1,6 +1,7 @@
 var GAME_STATE_INTRO = 1;
 var GAME_STATE_PLAYING = 2;
 var GAME_STATE_OVER = 3;
+var BULLET_SPEED = 8;
 
 var stars;
 var player;
@@ -13,12 +14,19 @@ var titleText;
 var gameState = GAME_STATE_INTRO;
 var score = 0;
 
-function makeBullet(x, y) {
-  var bullet = createSprite(x, y, 10, 10);
+function makeBullet(pos, angle) {
+  var bullet = createSprite(pos.x, pos.y, 10, 10);
 
   bullet.shapeColor = color(255, 0, 150);
   bullet.depth = -10;
   projectiles.add(bullet);
+
+  if (typeof(angle) === 'number') {
+    bullet.setSpeed(BULLET_SPEED, angle);
+  } else {
+    bullet.velocity.x = angle.x * BULLET_SPEED;
+    bullet.velocity.y = angle.y * BULLET_SPEED;
+  }
 
   return bullet;
 }
@@ -40,25 +48,31 @@ function createSpinnyEnemy() {
   enemy.sprite.setSpeed(2, 90);
 
   enemy.add(enemy.timer.finiteInterval(15, count, function(i) {
-    var b = makeBullet(enemy.sprite.position.x,
-                       enemy.sprite.position.y);
-
-    b.setSpeed(8, i * angleIncrement);
+    makeBullet(enemy.sprite.position, i * angleIncrement);
   }));
 
   return enemy;
 }
 
 function createSpurtyEnemy() {
-  var enemy = new Enemy(-randInt(0, 200), -50, 15, 'pink', timer);
+  var shootAtPlayer = random() > 0.75;
+  var col = shootAtPlayer ? 'orange' : 'pink';
+  var enemy = new Enemy(-randInt(0, 200), -50, 15, col, timer);
 
   enemy.sprite.setSpeed(3, randInt(30, 60));
 
   enemy.add(enemy.timer.interval(60, function() {
     return enemy.timer.finiteInterval(5, 5, function() {
-      var b = makeBullet(enemy.sprite.position.x,
-                         enemy.sprite.position.y);
-      b.setSpeed(8, 90);
+      var angle;
+
+      if (shootAtPlayer) {
+        angle = p5.Vector.sub(player.sprite.position,
+                              enemy.sprite.position).normalize();
+      } else {
+        angle = 90;
+      }
+
+      makeBullet(enemy.sprite.position, angle);
     });
   }));
 
