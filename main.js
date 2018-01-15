@@ -2,6 +2,9 @@ var GAME_STATE_INTRO = 1;
 var GAME_STATE_PLAYING = 2;
 var GAME_STATE_OVER = 3;
 var BULLET_SPEED = 8;
+var SCREEN_WIDTH = 600;
+var SCREEN_HEIGHT = 800;
+var NULL_INPUT = {left: false, right: false, up: false, down: false};
 
 var stars;
 var player;
@@ -14,8 +17,26 @@ var titleText;
 var gameState = GAME_STATE_INTRO;
 var score = 0;
 var inputFromPromise = null;
+var playerAI = initPlayerAI();
 
-var ENABLE_PLAYER_AI = /\?ai=true/.test(window.location.search);
+function initPlayerAI() {
+  var match = window.location.search.match(/[?&]ai=([A-Za-z0-9_]+)/);
+
+  if (!match) return null;
+
+  var name = match[1];
+  var cls = AI.constructors[name];
+
+  if (!cls) {
+    console.error(`Unknown AI: ${name}`);
+    return null;
+  }
+
+  return new cls({
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+  });
+}
 
 function makeBullet(pos, angle) {
   var bullet = createSprite(pos.x, pos.y, 10, 10);
@@ -111,8 +132,9 @@ function gameOver() {
       "Your final score is " + score + "."
     );
   });
-  if (ENABLE_PLAYER_AI) {
-    AI.onGameOver(score, reset);
+  if (playerAI) {
+    let aiPromise = playerAI.onGameOver(score) || Promise.resolve();
+    aiPromise.then(reset);
   }
 }
 
@@ -139,8 +161,9 @@ function reset() {
 
   titleText = new TitleText(timer);
 
-  if (ENABLE_PLAYER_AI) {
-    return gamePlaying();
+  if (playerAI) {
+    let aiPromise = playerAI.onGameStart() || Promise.resolve();
+    return aiPromise.then(gamePlaying);
   }
 
   titleText.write(
@@ -152,7 +175,7 @@ function reset() {
 }
 
 function setup() {
-  createCanvas(600, 800);
+  createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
   reset();
 }
 
@@ -162,8 +185,9 @@ function draw() {
   if (inputFromPromise) {
     input = inputFromPromise;
     inputFromPromise = null;
-  } else if (ENABLE_PLAYER_AI) {
-    input = AI.getInput({ player, projectiles, enemies, score });
+  } else if (playerAI) {
+    input = playerAI.getInput({ player, projectiles, enemies, score }) ||
+            NULL_INPUT;
   } else {
     input = Keyboard.getInput();
   }
