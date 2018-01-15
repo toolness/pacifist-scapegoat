@@ -5,12 +5,7 @@ class TrivialAI {
     });
     this.COUNTER_MAX = 4;
     this.FAKE_PROCESSING_TIME = 0;
-    this.CONSTANT_INPUT = {
-      left: true,
-      right: false,
-      up: false,
-      down: false,
-    };
+    this.CONSTANT_INPUT = {left: true};
   }
 
   getInput({ player, projectiles, enemies, score }) {

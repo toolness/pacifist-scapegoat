@@ -186,8 +186,11 @@ function draw() {
     input = inputFromPromise;
     inputFromPromise = null;
   } else if (playerAI) {
-    input = playerAI.getInput({ player, projectiles, enemies, score }) ||
-            NULL_INPUT;
+    input = Object.assign(
+      {},
+      NULL_INPUT,
+      playerAI.getInput({ player, projectiles, enemies, score }) || {}
+    );
   } else {
     input = Keyboard.getInput();
   }
