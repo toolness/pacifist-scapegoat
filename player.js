@@ -40,14 +40,9 @@ Player.prototype = {
       self.sprite.remove();
     });
   },
-  processInput: function() {
-    var pInst = this.pInst;
+  processInput: function({ left, right, up, down }) {
     var speed = this.SPEED;
     var angle = 0;
-    var left = pInst.keyDown(pInst.LEFT_ARROW) || pInst.keyDown('a');
-    var right = pInst.keyDown(pInst.RIGHT_ARROW) || pInst.keyDown('d');
-    var up = pInst.keyDown(pInst.UP_ARROW) || pInst.keyDown('w');
-    var down = pInst.keyDown(pInst.DOWN_ARROW) || pInst.keyDown('s');
 
     if (this.explosionRadius) return;
 

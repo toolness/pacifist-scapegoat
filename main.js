@@ -153,7 +153,7 @@ function draw() {
       score++;
   }
 
-  player.processInput();
+  player.processInput(getKeyInput());
 
   walls.displace(player.sprite);
 
