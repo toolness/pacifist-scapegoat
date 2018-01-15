@@ -13,6 +13,7 @@ var font;
 var titleText;
 var gameState = GAME_STATE_INTRO;
 var score = 0;
+var inputFromPromise = null;
 
 var ENABLE_PLAYER_AI = /\?ai=true/.test(window.location.search);
 
@@ -148,10 +149,22 @@ function setup() {
 function draw() {
   var input;
 
-  if (ENABLE_PLAYER_AI) {
+  if (inputFromPromise) {
+    input = inputFromPromise;
+    inputFromPromise = null;
+  } else if (ENABLE_PLAYER_AI) {
     input = AI.getInput();
   } else {
     input = Keyboard.getInput();
+  }
+
+  if (input instanceof Promise) {
+    noLoop();
+    input.then(result => {
+      inputFromPromise = result;
+      loop();
+    });
+    return;
   }
 
   timer.update();
