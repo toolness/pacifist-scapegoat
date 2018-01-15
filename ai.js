@@ -3,6 +3,24 @@ const AI = {
   COUNTER_MAX: 4,
   preparedInput: null,
   getInput({ player, projectiles, enemies, score }) {
+    // TODO: Somehow analyze the game state to produce an action.
+    /*
+    projectiles.forEach(sprite => {
+      if (!type(sprite.position.x) == 'number') {
+        throw new Error();
+      }
+    });
+
+    console.log(
+      player.sprite.position.x,
+      player.sprite.position.y,
+      player.sprite.width,
+      player.sprite.height,
+      player.sprite.velocity.x,
+      player.sprite.velocity.y,
+    );
+    */
+
     if (this.counter == 0) {
       return new Promise(resolve => {
         setTimeout(() => {
