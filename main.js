@@ -112,7 +112,7 @@ function gameOver() {
     );
   });
   if (ENABLE_PLAYER_AI) {
-    AI.onGameOver(score);
+    AI.onGameOver(score, reset);
   }
 }
 
@@ -120,8 +120,13 @@ function preload() {
   font = loadFont('vendor/OrbitronBold.otf');
 }
 
-function setup() {
-  createCanvas(600, 800);
+function reset() {
+  allSprites.removeSprites();
+
+  gameState = GAME_STATE_INTRO;
+  score = 0;
+  inputFromPromise = null;
+
   timer = new Timer();
   stars = new Stars(200);
   player = new Player(timer);
@@ -144,6 +149,11 @@ function setup() {
   ).then(function() {
     return timer.wait(160);
   }).then(gamePlaying);
+}
+
+function setup() {
+  createCanvas(600, 800);
+  reset();
 }
 
 function draw() {

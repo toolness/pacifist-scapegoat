@@ -22,7 +22,8 @@ const AI = {
     return this.preparedInput;
   },
 
-  onGameOver(score) {
+  onGameOver(score, reset) {
     console.log(`Game ended with score ${score}.`);
+    reset();
   }
 };
