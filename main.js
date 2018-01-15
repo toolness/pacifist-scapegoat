@@ -153,7 +153,7 @@ function draw() {
     input = inputFromPromise;
     inputFromPromise = null;
   } else if (ENABLE_PLAYER_AI) {
-    input = AI.getInput();
+    input = AI.getInput({ player, projectiles, enemies, score });
   } else {
     input = Keyboard.getInput();
   }
