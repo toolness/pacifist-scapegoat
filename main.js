@@ -151,7 +151,7 @@ function draw() {
   if (ENABLE_PLAYER_AI) {
     input = AI.getInput();
   } else {
-    input = getKeyInput();
+    input = Keyboard.getInput();
   }
 
   timer.update();
