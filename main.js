@@ -14,6 +14,8 @@ var titleText;
 var gameState = GAME_STATE_INTRO;
 var score = 0;
 
+var ENABLE_PLAYER_AI = /\?ai=true/.test(window.location.search);
+
 function makeBullet(pos, angle) {
   var bullet = createSprite(pos.x, pos.y, 10, 10);
 
@@ -88,6 +90,14 @@ function spawnRandomEnemy() {
   enemies.add(enemy.sprite);
 }
 
+function gamePlaying() {
+  gameState = GAME_STATE_PLAYING;
+  return timer.interval(120, function() {
+    if (gameState === GAME_STATE_OVER) return Timer.STOP_INTERVAL;
+    spawnRandomEnemy();
+  });
+}
+
 function gameOver() {
   if (gameState === GAME_STATE_OVER) return;
 
@@ -100,6 +110,9 @@ function gameOver() {
       "Your final score is " + score + "."
     );
   });
+  if (ENABLE_PLAYER_AI) {
+    AI.onGameOver(score);
+  }
 }
 
 function preload() {
@@ -120,21 +133,27 @@ function setup() {
 
   titleText = new TitleText(timer);
 
+  if (ENABLE_PLAYER_AI) {
+    return gamePlaying();
+  }
+
   titleText.write(
     "Get ready, Human.\n\n" +
     "Use the arrow or WASD keys\nto move."
   ).then(function() {
     return timer.wait(160);
-  }).then(function() {
-    gameState = GAME_STATE_PLAYING;
-    return timer.interval(120, function() {
-      if (gameState === GAME_STATE_OVER) return Timer.STOP_INTERVAL;
-      spawnRandomEnemy();
-    });
-  });
+  }).then(gamePlaying);
 }
 
 function draw() {
+  var input;
+
+  if (ENABLE_PLAYER_AI) {
+    input = AI.getInput();
+  } else {
+    input = getKeyInput();
+  }
+
   timer.update();
 
   background('black');
@@ -153,7 +172,7 @@ function draw() {
       score++;
   }
 
-  player.processInput(getKeyInput());
+  player.processInput(input);
 
   walls.displace(player.sprite);
 
