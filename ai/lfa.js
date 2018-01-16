@@ -165,6 +165,7 @@ class LinearFunctionApproximatorAI {
     // We want losing the game to be a big penalty, so reverse the score.
     const tdError = -score - this.lastActionInfo.value;
     this._updateWeights(tdError);
+    console.log(`Game ended with score ${score}.`);
   }
 }
 
