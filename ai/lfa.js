@@ -57,6 +57,7 @@ class LinearFunctionApproximatorAI {
       {right: true},
     ];
     this.LEARNING_RATE = 0.1;
+    this.FRAMES_PER_ACTION = 8;
     this.weights = this._createFeatureVector().array;
     console.log(`LFA initialized with ${this.weights.length} features.`);
   }
@@ -139,26 +140,32 @@ class LinearFunctionApproximatorAI {
   }
 
   getInput({ player, projectiles, enemies, score }) {
-    const state = this._encodeState({
-      player, projectiles, enemies
-    });
-    const actionInfo = this._getBestActionInfo(state);
-    const reward = score - this.lastScore;
-    this.lastScore = score;
+    if (this.counter === 0) {
+      const state = this._encodeState({
+        player, projectiles, enemies
+      });
+      const actionInfo = this._getBestActionInfo(state);
+      const reward = score - this.lastScore;
+      this.lastScore = score;
 
-    if (this.lastActionInfo !== null) {
-      // This is essentially an implementation of Sarsa(0).
-      const tdError = reward + actionInfo.value - this.lastActionInfo.value;
-      this._updateWeights(tdError);
+      if (this.lastActionInfo !== null) {
+        // This is essentially an implementation of Sarsa(0).
+        const tdError = reward + actionInfo.value - this.lastActionInfo.value;
+        this._updateWeights(tdError);
+      }
+      this.lastActionInfo = actionInfo;
+      this.counter = this.FRAMES_PER_ACTION;
+    } else {
+      this.counter--;
     }
-    this.lastActionInfo = actionInfo;
 
-    return actionInfo.action;
+    return this.lastActionInfo.action;
   }
 
   onGameStart() {
     this.lastScore = 0;
     this.lastActionInfo = null;
+    this.counter = 0;
   }
 
   onGameOver(score) {
