@@ -77,12 +77,10 @@ class LinearFunctionApproximatorAI {
     return Math.floor(y / this.VERT_BIN_SIZE);
   }
 
-  getInput({ player, projectiles, enemies, score }) {
-    // TODO: Actually change our weights at some point.
-
-    const features = this._createFeatureVector();
+  _encodeState({ player, projectiles, enemies }) {
     const playerBin = this._getHbin(player.sprite.position.x);
-    const actFeatures = this.ACTIONS.map(_ => this._createFeatureVector());
+    const hostileBins = [];
+
     [projectiles, enemies].forEach(group => {
       group.forEach(sprite => {
         const hbin = this._getHbin(sprite.position.x);
@@ -93,14 +91,28 @@ class LinearFunctionApproximatorAI {
           return;
         }
 
-        actFeatures.forEach((feature, actionIndex) => {
-          feature.set([
-            playerBin,
-            hbin,
-            vbin,
-            actionIndex
-          ], 1.0);
-        });
+        hostileBins.push([hbin, vbin]);
+      });
+    });
+
+    return {playerBin, hostileBins};
+  }
+
+  getInput({ player, projectiles, enemies, score }) {
+    // TODO: Actually change our weights at some point.
+
+    const {playerBin, hostileBins} = this._encodeState({
+      player, projectiles, enemies
+    });
+    const actFeatures = this.ACTIONS.map(_ => this._createFeatureVector());
+    hostileBins.forEach(([hbin, vbin]) => {
+      actFeatures.forEach((feature, actionIndex) => {
+        feature.set([
+          playerBin,
+          hbin,
+          vbin,
+          actionIndex
+        ], 1.0);
       });
     });
 
