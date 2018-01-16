@@ -57,7 +57,6 @@ class LinearFunctionApproximatorAI {
       {right: true},
     ];
     this.LEARNING_RATE = 0.1;
-    this.GAME_OVER_REWARD = -1000;
     this.weights = this._createFeatureVector().array;
     console.log(`LFA initialized with ${this.weights.length} features.`);
   }
@@ -163,7 +162,8 @@ class LinearFunctionApproximatorAI {
   }
 
   onGameOver(score) {
-    const tdError = this.GAME_OVER_REWARD - this.lastActionInfo.value;
+    // We want losing the game to be a big penalty, so reverse the score.
+    const tdError = -score - this.lastActionInfo.value;
     this._updateWeights(tdError);
   }
 }
