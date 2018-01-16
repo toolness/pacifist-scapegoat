@@ -28,7 +28,7 @@ function dotProduct(a, b) {
   }, 0);
 }
 
-function indexOfMax(arr) {
+function valueAndIndexOfMax(arr) {
   let bestIndex = 0;
   let bestValue = arr[0];
 
@@ -40,7 +40,7 @@ function indexOfMax(arr) {
     }
   }
 
-  return bestIndex;
+  return [bestValue, bestIndex];
 }
 
 class LinearFunctionApproximatorAI {
@@ -56,6 +56,8 @@ class LinearFunctionApproximatorAI {
       {left: true},
       {right: true},
     ];
+    this.LEARNING_RATE = 0.1;
+    this.GAME_OVER_REWARD = -1000;
     this.weights = this._createFeatureVector().array;
     console.log(`LFA initialized with ${this.weights.length} features.`);
   }
@@ -95,20 +97,17 @@ class LinearFunctionApproximatorAI {
       });
     });
 
-    return {playerBin, hostileBins};
+    return { playerBin, hostileBins };
   }
 
-  getInput({ player, projectiles, enemies, score }) {
-    // TODO: Actually change our weights at some point.
+  _getBestActionInfo(state) {
+    // TODO: Modify this to be epsilon-greedy.
 
-    const {playerBin, hostileBins} = this._encodeState({
-      player, projectiles, enemies
-    });
     const actFeatures = this.ACTIONS.map(_ => this._createFeatureVector());
-    hostileBins.forEach(([hbin, vbin]) => {
+    state.hostileBins.forEach(([hbin, vbin]) => {
       actFeatures.forEach((feature, actionIndex) => {
         feature.set([
-          playerBin,
+          state.playerBin,
           hbin,
           vbin,
           actionIndex
@@ -120,14 +119,52 @@ class LinearFunctionApproximatorAI {
       return dotProduct(feature.array, this.weights);
     });
 
-    return this.ACTIONS[indexOfMax(actRewards)];
+    const [value, index] = valueAndIndexOfMax(actRewards);
+
+    return {
+      value,
+      index,
+      featureVector: actFeatures[index],
+      action: this.ACTIONS[index],
+    };
+  }
+
+  _updateWeights(tdError) {
+    for (let i = 0; i < this.weights.length; i++) {
+      this.weights[i] += (
+        this.LEARNING_RATE *
+        tdError *
+        this.lastActionInfo.featureVector.array[i]
+      );
+    }
+  }
+
+  getInput({ player, projectiles, enemies, score }) {
+    const state = this._encodeState({
+      player, projectiles, enemies
+    });
+    const actionInfo = this._getBestActionInfo(state);
+    const reward = score - this.lastScore;
+    this.lastScore = score;
+
+    if (this.lastActionInfo !== null) {
+      // This is essentially an implementation of Sarsa(0).
+      const tdError = reward + actionInfo.value - this.lastActionInfo.value;
+      this._updateWeights(tdError);
+    }
+    this.lastActionInfo = actionInfo;
+
+    return actionInfo.action;
   }
 
   onGameStart() {
+    this.lastScore = 0;
+    this.lastActionInfo = null;
   }
 
   onGameOver(score) {
-
+    const tdError = this.GAME_OVER_REWARD - this.lastActionInfo.value;
+    this._updateWeights(tdError);
   }
 }
 

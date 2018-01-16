@@ -123,6 +123,7 @@ function gamePlaying() {
 function gameOver() {
   if (gameState === GAME_STATE_OVER) return;
 
+  score -= 1;
   gameState = GAME_STATE_OVER;
   titleText.reset();
   player.explode().then(function() {
