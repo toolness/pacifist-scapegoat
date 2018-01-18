@@ -58,6 +58,7 @@ class LinearFunctionApproximatorAI {
     ];
     this.LEARNING_RATE = 0.1;
     this.FRAMES_PER_ACTION = 8;
+    this.EPSILON = 0.05;
     this.weights = this._createFeatureVector().array;
     console.log(`LFA initialized with ${this.weights.length} features.`);
   }
@@ -101,8 +102,6 @@ class LinearFunctionApproximatorAI {
   }
 
   _getBestActionInfo(state) {
-    // TODO: Modify this to be epsilon-greedy.
-
     const actFeatures = this.ACTIONS.map(_ => this._createFeatureVector());
     state.hostileBins.forEach(([hbin, vbin]) => {
       actFeatures.forEach((feature, actionIndex) => {
@@ -119,7 +118,14 @@ class LinearFunctionApproximatorAI {
       return dotProduct(feature.array, this.weights);
     });
 
-    const [value, index] = valueAndIndexOfMax(actRewards);
+    let value, index;
+
+    if (random() < this.EPSILON) {
+      index = Util.randInt(0, actRewards.length);
+      value = actRewards[index];
+    } else {
+      [value, index] = valueAndIndexOfMax(actRewards);
+    }
 
     return {
       value,
