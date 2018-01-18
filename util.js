@@ -1,5 +1,5 @@
 var Util = {
-  isSpriteOffscreen: function(sprite, pInst) {
+  isSpriteOffscreen(sprite, pInst) {
     pInst = pInst || window;
 
     var pos = sprite.position;
@@ -8,5 +8,11 @@ var Util = {
 
     return (pos.x + halfWidth < 0 || pos.x - halfWidth > pInst.width ||
             pos.y + halfHeight < 0 || pos.y - halfHeight > pInst.height);
-  }
+  },
+  randInt(min, max) {
+    return floor(random(min, max));
+  },
+  randChoice(array) {
+    return array[Util.randInt(0, array.length)];
+  },
 };

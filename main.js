@@ -55,16 +55,8 @@ function makeBullet(pos, angle) {
   return bullet;
 }
 
-function randInt(min, max) {
-  return floor(random(min, max));
-}
-
-function randChoice(array) {
-  return array[randInt(0, array.length)];
-}
-
 function createSpinnyEnemy() {
-  var enemy = new Enemy(randInt(50, width - 50), -50, 15,
+  var enemy = new Enemy(Util.randInt(50, width - 50), -50, 15,
                         'yellow', timer);
   var count = 20;
   var angleIncrement = 360 / count;
@@ -81,9 +73,9 @@ function createSpinnyEnemy() {
 function createSpurtyEnemy() {
   var shootAtPlayer = random() > 0.75;
   var col = shootAtPlayer ? 'orange' : 'pink';
-  var enemy = new Enemy(-randInt(0, 200), -50, 15, col, timer);
+  var enemy = new Enemy(-Util.randInt(0, 200), -50, 15, col, timer);
 
-  enemy.sprite.setSpeed(3, randInt(30, 60));
+  enemy.sprite.setSpeed(3, Util.randInt(30, 60));
 
   enemy.add(enemy.timer.interval(60, function() {
     return enemy.timer.finiteInterval(5, 5, function() {
@@ -104,7 +96,7 @@ function createSpurtyEnemy() {
 }
 
 function spawnRandomEnemy() {
-  var enemy = randChoice([
+  var enemy = Util.randChoice([
     createSpinnyEnemy,
     createSpurtyEnemy
   ])();
