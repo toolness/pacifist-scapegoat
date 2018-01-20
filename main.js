@@ -106,6 +106,13 @@ function spawnRandomEnemy() {
 
 function gamePlaying() {
   gameState = GAME_STATE_PLAYING;
+
+  if (playerAI) {
+    // Player is an AI, no need to give them time to acclimate
+    // to the controls and such.
+    spawnRandomEnemy();
+  }
+
   return timer.interval(120, function() {
     if (gameState === GAME_STATE_OVER) return Timer.STOP_INTERVAL;
     spawnRandomEnemy();
